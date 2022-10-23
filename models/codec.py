@@ -20,7 +20,7 @@ def module_size(module):
         n_params += param.numel()
     return n_params, n_conv_layers
 
-
+# 2D情况下的最近邻上采样器，上采样倍率默认为2倍，重载nn.module中的forward方法
 class UpsamplingNearest2d(nn.Module):
     def __init__(self, scale_factor=2.):
         super().__init__()
@@ -29,7 +29,7 @@ class UpsamplingNearest2d(nn.Module):
     def forward(self, x):
         return F.interpolate(x, scale_factor=self.scale_factor, mode='nearest')
     
-
+#2D情况下的双线性采样器，采样倍率同样是2倍
 class UpsamplingBilinear2d(nn.Module):
     def __init__(self, scale_factor=2.):
         super().__init__()
@@ -39,7 +39,7 @@ class UpsamplingBilinear2d(nn.Module):
         return F.interpolate(x, scale_factor=self.scale_factor, 
             mode='bilinear', align_corners=True)
 
-
+#dense层 继承自Sequential模块，init的时候加入一堆的module作为前向算子
 class _DenseLayer(nn.Sequential):
     """One dense layer within dense block, with bottleneck design.
     Args:
@@ -239,7 +239,7 @@ class DenseED(nn.Module):
         # First convolution, half image size ================
         # For even image size: k7s2p3, k5s2p2
         # For odd image size (e.g. 65): k7s2p2, k5s2p1, k13s2p5, k11s2p4, k9s2p3
-        self.features.add_module('In_conv', nn.Conv2d(in_channels, init_features, 
+        self.features.add_module('In_conv', nn.Conv2d(in_channels, init_features, # 卷积后，池化后尺寸计算公式：(img_size-kernel_size + 2*padding)/stride+1
                               kernel_size=7, stride=2, padding=pad, bias=False))
         # Encoding / transition down ================
         # dense block --> encoding --> dense block --> encoding
